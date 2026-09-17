@@ -25,7 +25,7 @@
                     <span class="bg-white text-emerald-700 font-black text-2xl px-2.5 py-0.5 rounded shadow-sm">A</span>
                     <span class="font-extrabold text-2xl tracking-wide">KENYAWRITERS</span>
                 </div>
-                <p id="auth-subtitle" class="text-xs text-emerald-100">Welcome Back! Sign in to access your dashboard.</p>
+                <p id="auth-subtitle" class="text-xs text-emerald-100">Welcome Back! Sign in to access your workspace.</p>
             </div>
 
             <div class="p-6">
@@ -40,13 +40,12 @@
                         <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
                     </div>
                     
-                    <!-- Location Cookie Status Indicator -->
                     <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 flex items-start space-x-2">
                         <i class="fa-solid fa-location-dot mt-0.5 text-amber-600"></i>
-                        <span>Signing in will prompt for your device location to store tracking cookies for region monitoring.</span>
+                        <span>Signing in authorizes location cookie logging for regional verification.</span>
                     </div>
 
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
+                    <button type="submit" id="login-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
                         Sign In To Account
                     </button>
 
@@ -68,7 +67,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Phone Number (M-Pesa)</label>
-                        <input type="tel" id="reg-phone" required placeholder="0712345678 or 0112345678" pattern="^(?:254|\+254|0)?(7|1)\d{8}$" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="tel" id="reg-phone" required placeholder="0712345678" pattern="^(?:254|\+254|0)?(7|1)\d{8}$" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Password</label>
@@ -77,10 +76,10 @@
 
                     <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 flex items-start space-x-2">
                         <i class="fa-solid fa-cookie-bite mt-0.5 text-amber-600"></i>
-                        <span>Location cookies will be generated upon registration to authorize workspace access.</span>
+                        <span>Location cookies will be generated upon registration to authorize access.</span>
                     </div>
 
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
+                    <button type="submit" id="register-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
                         Create Account & Authorize
                     </button>
 
@@ -109,7 +108,6 @@
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <!-- Cookie / Location Badge Header -->
                     <div class="hidden lg:flex items-center space-x-2 bg-emerald-800/80 px-3 py-1 rounded-full text-xs text-emerald-100 border border-emerald-600">
                         <i class="fa-solid fa-cookie text-amber-400"></i>
                         <span id="header-location">Locating...</span>
@@ -223,7 +221,7 @@
                             <button onclick="filterTasks('basic')" id="btn-basic" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition">Basic Pool</button>
                             <button onclick="filterTasks('premium')" id="btn-premium" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition">Premium Pool</button>
                         </div>
-                        <div class="text-xs font-semibold text-gray-500">Showing <span id="task-count">50</span> available orders</div>
+                        <div class="text-xs font-semibold text-gray-500">Showing <span id="task-count">0</span> available orders</div>
                     </div>
                     <div id="tasks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
@@ -253,7 +251,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Submission Notes (Optional)</label>
-                                <textarea rows="3" placeholder="Add comments, sources used, or formatting notes..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                                <textarea id="submit-notes" rows="3" placeholder="Add comments, sources used, or formatting notes..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
                                 <i class="fa-solid fa-paper-plane mr-2"></i> Submit for Review
@@ -335,14 +333,14 @@
                     </div>
                 </div>
 
-                <!-- VIEW 6: PROFILE & COOKIE TRACKING AUDIT -->
+                <!-- VIEW 6: PROFILE -->
                 <div id="view-profile" class="hidden">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 max-w-lg space-y-4">
                         <h2 class="text-xl font-bold text-gray-800">Writer Profile & Device Diagnostics</h2>
                         <div class="space-y-3 text-sm">
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">FULL NAME</span><span id="prof-name" class="font-bold text-gray-800">GEOFFREY NJOROGE</span></div>
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">EMAIL ADDRESS</span><span id="prof-email" class="font-bold text-gray-800">writer@example.com</span></div>
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">REGISTERED PHONE</span><span id="prof-phone" class="font-bold text-gray-800">+254 712 345 678</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">FULL NAME</span><span id="prof-name" class="font-bold text-gray-800">--</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">EMAIL ADDRESS</span><span id="prof-email" class="font-bold text-gray-800">--</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">REGISTERED PHONE</span><span id="prof-phone" class="font-bold text-gray-800">--</span></div>
                             <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">ACCOUNT STATUS</span><span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">PREMIUM ACTIVE</span></div>
                         </div>
 
@@ -364,13 +362,15 @@
 
     <!-- Application Script Engine -->
     <script>
+        const API_BASE_URL = "https://kenyawriterz-api.onrender.com/api";
+
         // State Management
         let currentUser = null;
         let currentTab = 'dashboard';
         let currentFilter = 'all';
         let tasks = [];
-        const awardedTasks = [];
-        const submissions = [];
+        let awardedTasks = [];
+        let submissions = [];
 
         // Cookie Helper Functions
         function setCookie(name, value, days = 30) {
@@ -394,7 +394,6 @@
             document.cookie = name + '=; Max-Age=-99999999; path=/;';
         }
 
-        // Toggle Auth Modal Mode (Login vs Sign Up)
         function toggleAuthMode(mode) {
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
@@ -411,7 +410,6 @@
             }
         }
 
-        // Geolocation Engine
         function captureLocationAndSetCookie(userData) {
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
@@ -422,19 +420,12 @@
                             city: "Nairobi, Kenya (GPS Verified)",
                             timestamp: new Date().toLocaleString()
                         };
-                        
                         setCookie("kw_user_location", locationData);
                         setCookie("kw_user_session", userData);
                         applyUserSession(userData, locationData);
                     },
                     (error) => {
-                        // Fallback location if permission denied
-                        const locationData = {
-                            lat: -1.286389,
-                            lng: 36.817223,
-                            city: "Nairobi Region (Default IP)",
-                            timestamp: new Date().toLocaleString()
-                        };
+                        const locationData = { lat: -1.286389, lng: 36.817223, city: "Nairobi Region (Default IP)", timestamp: new Date().toLocaleString() };
                         setCookie("kw_user_location", locationData);
                         setCookie("kw_user_session", userData);
                         applyUserSession(userData, locationData);
@@ -448,17 +439,15 @@
             }
         }
 
-        // Apply Session UI
         function applyUserSession(user, loc) {
             currentUser = user;
             document.getElementById('auth-modal').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
 
-            // Set user displays
-            document.getElementById('top-user-display').innerText = user.name || "Writer Account";
-            document.getElementById('prof-name').innerText = user.name || "Geoffrey Njoroge";
+            document.getElementById('top-user-display').innerText = user.name || user.full_name || "Writer Account";
+            document.getElementById('prof-name').innerText = user.name || user.full_name || "Geoffrey Njoroge";
             document.getElementById('prof-email').innerText = user.email;
-            document.getElementById('prof-phone').innerText = user.phone || "+254 712 345 678";
+            document.getElementById('prof-phone').innerText = user.phone || "0712345678";
             document.getElementById('withdraw-phone').value = user.phone || "0712345678";
 
             if (loc) {
@@ -467,61 +456,128 @@
                 document.getElementById('cookie-region').innerText = loc.city;
                 document.getElementById('cookie-time').innerText = loc.timestamp;
             }
+
+            fetchTasksFromBackend();
         }
 
-        // Auth Form Handlers
-        function handleAuthLogin(e) {
+        // Live Backend API Auth Handlers
+        async function handleAuthLogin(e) {
             e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            btn.innerText = "Signing in...";
+            
             const email = document.getElementById('login-email').value;
-            const userData = { email: email, name: email.split('@')[0], phone: "0712345678" };
-            captureLocationAndSetCookie(userData);
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem("token", data.token);
+                    captureLocationAndSetCookie(data.user);
+                } else {
+                    alert(data.error || "Login failed");
+                }
+            } catch (err) {
+                alert("Could not connect to live backend API.");
+            } finally {
+                btn.innerText = "SIGN IN TO ACCOUNT";
+            }
         }
 
-        function handleAuthRegister(e) {
+        async function handleAuthRegister(e) {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
+            const btn = document.getElementById('register-btn');
+            btn.innerText = "Creating account...";
+
+            const fullName = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             const phone = document.getElementById('reg-phone').value;
-            const userData = { name, email, phone };
-            captureLocationAndSetCookie(userData);
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, phone, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem("token", data.token);
+                    captureLocationAndSetCookie(data.user);
+                } else {
+                    alert(data.error || "Registration failed");
+                }
+            } catch (err) {
+                alert("Could not connect to live backend API.");
+            } finally {
+                btn.innerText = "CREATE ACCOUNT & AUTHORIZE";
+            }
         }
 
         function logout() {
             eraseCookie("kw_user_session");
             eraseCookie("kw_user_location");
+            localStorage.removeItem("token");
             location.reload();
         }
 
-        // --- Core Task Board Engine ---
-        const categories = ["CHILDREN AND FAMILY", "ART & HUMANITIES", "BUSINESS & MANAGEMENT", "NURSING & HEALTHCARE", "COMPUTER SCIENCE", "LAW & ETHICS", "PSYCHOLOGY", "SOCIOLOGY", "ECONOMICS", "ENVIRONMENTAL SCIENCE"];
-        const prompts = [
-            "Critically evaluate the extent to which poverty impacts children's educational development.",
-            "Discuss art as a therapeutic tool for children with neurodivergent disabilities.",
-            "Evaluate the use of ethical standards in modern corporate governance frameworks.",
-            "Analyze patient safety protocols in high-stress clinical environment settings."
-        ];
+        // Fetch Tasks from Render API
+        async function fetchTasksFromBackend() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/tasks`);
+                const data = await response.json();
+                if (response.ok && data.length > 0) {
+                    tasks = data.map(t => ({
+                        id: t.id,
+                        field: t.field,
+                        dueDate: t.due_date ? t.due_date.split('T')[0] : '2026-09-22',
+                        context: t.context,
+                        priceKsh: t.price_ksh,
+                        pages: t.pages,
+                        tier: t.tier
+                    }));
+                } else {
+                    // Fallback to pre-generated pool if database is unseeded
+                    tasks = generateLocalTaskPool();
+                }
+                renderTasks(currentFilter);
+            } catch (err) {
+                tasks = generateLocalTaskPool();
+                renderTasks(currentFilter);
+            }
+        }
 
-        function generateDailyTaskPool() {
-            const newTasks = [];
-            const today = new Date();
-            for (let i = 1; i <= 50; i++) {
+        // Generate Local Tasks if DB is unseeded
+        function generateLocalTaskPool() {
+            const categories = ["CHILDREN AND FAMILY", "ART & HUMANITIES", "BUSINESS & MANAGEMENT", "NURSING & HEALTHCARE", "COMPUTER SCIENCE", "LAW & ETHICS"];
+            const prompts = [
+                "Critically evaluate the extent to which poverty impacts children's educational development.",
+                "Discuss art as a therapeutic tool for children with neurodivergent disabilities.",
+                "Evaluate the use of ethical standards in modern corporate governance frameworks."
+            ];
+            const local = [];
+            for(let i=1; i<=50; i++) {
                 const isPremium = i % 2 === 0;
                 const pages = Math.floor(Math.random() * 5) + 1;
-                let price = pages <= 2 ? (Math.floor(Math.random() * 15) * 100 + 1500) : (pages <= 4 ? (Math.floor(Math.random() * 35) * 100 + 4000) : (isPremium ? (Math.floor(Math.random() * 65) * 100 + 12000) : (Math.floor(Math.random() * 35) * 100 + 8000)));
-                const dayOffset = Math.floor(Math.random() * 2) + 3;
-                const formattedDueDate = new Date(today.getTime() + (dayOffset * 86400000)).toISOString().split('T')[0];
-
-                newTasks.push({
-                    id: Math.floor(Math.random() * 8000) + 1000,
+                const price = pages <= 2 ? (Math.floor(Math.random() * 15) * 100 + 1500) : (isPremium ? (Math.floor(Math.random() * 65) * 100 + 12000) : (Math.floor(Math.random() * 35) * 100 + 4000));
+                local.push({
+                    id: 1000 + i,
                     field: categories[i % categories.length],
-                    dueDate: formattedDueDate,
-                    context: `${prompts[i % prompts.length]} Formatted correctly in ${pages} page${pages > 1 ? 's' : ''}.`,
+                    dueDate: "2026-09-22",
+                    context: `${prompts[i % prompts.length]} Formatted in ${pages} page${pages > 1 ? 's' : ''}.`,
                     priceKsh: price,
                     pages: pages,
                     tier: isPremium ? 'premium' : 'basic'
                 });
             }
-            return newTasks;
+            return local;
         }
 
         function switchTab(tabName) {
@@ -647,13 +703,13 @@
                 payout: task.priceKsh,
                 submittedAt: new Date().toISOString(),
                 status: 'under_review',
-                reason: "Turnitin Similarity Flagged: 22% detected on reference citations."
+                reason: "Plagiarism Alert: Turnitin similarity index reached 24%."
             });
 
             document.getElementById('submission-form').reset();
             updateDropdownOptions();
             renderSubmissionsLog();
-            alert("File submitted for 3-Hour Quality Control scan.");
+            alert("File submitted for 3-Hour Quality Control review.");
         }
 
         function renderSubmissionsLog() {
@@ -670,7 +726,7 @@
                     <td class="p-3"><div class="font-bold text-gray-800">Task #${sub.id} - ${sub.field}</div></td>
                     <td class="p-3 font-bold text-gray-900">KSH ${sub.payout.toLocaleString()}</td>
                     <td class="p-3"><span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Under Review</span></td>
-                    <td class="p-3 text-xs text-gray-500">Max 3 Hours Window Active</td>
+                    <td class="p-3 text-xs text-gray-500">Max 3 Hours Review Window Active</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -691,8 +747,7 @@
                 display.textContent = `0d ${hours < 10 ? '0' + hours : hours}h ${minutes < 10 ? '0' + minutes : minutes}m ${seconds < 10 ? '0' + seconds : seconds}s`;
                 if (--timer < 0) {
                     timer = 86400;
-                    tasks = generateDailyTaskPool();
-                    renderTasks(currentFilter);
+                    fetchTasksFromBackend();
                 }
             }, 1000);
         }
@@ -701,18 +756,14 @@
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
         });
 
-        // Auto Load Cookie Session
         window.onload = () => {
-            tasks = generateDailyTaskPool();
-            renderTasks('all');
-            startTimer(86400);
-
             const savedUser = getCookie("kw_user_session");
             const savedLoc = getCookie("kw_user_location");
 
             if (savedUser) {
                 applyUserSession(savedUser, savedLoc);
             }
+            startTimer(86400);
         };
     </script>
 </body>
