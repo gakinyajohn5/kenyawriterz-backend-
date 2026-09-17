@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer Access Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased">
+
+    <!-- AUTHENTICATION OVERLAY MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
+            <!-- Modal Header -->
+            <div class="bg-emerald-700 p-6 text-center text-white relative">
+                <div class="inline-flex items-center space-x-2 mb-2">
+                    <span class="bg-white text-emerald-700 font-black text-2xl px-2.5 py-0.5 rounded shadow-sm">A</span>
+                    <span class="font-extrabold text-2xl tracking-wide">KENYAWRITERS</span>
+                </div>
+                <p id="auth-subtitle" class="text-xs text-emerald-100">Welcome Back! Sign in to access your dashboard.</p>
+            </div>
+
+            <div class="p-6">
+                <!-- LOGIN FORM -->
+                <form id="login-form" onsubmit="handleAuthLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label>
+                        <input type="email" id="login-email" required placeholder="writer@example.com" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                    
+                    <!-- Location Cookie Status Indicator -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 flex items-start space-x-2">
+                        <i class="fa-solid fa-location-dot mt-0.5 text-amber-600"></i>
+                        <span>Signing in will prompt for your device location to store tracking cookies for region monitoring.</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
+                        Sign In To Account
+                    </button>
+
+                    <div class="text-center pt-2">
+                        <span class="text-xs text-gray-500">Don't have an account? </span>
+                        <button type="button" onclick="toggleAuthMode('signup')" class="text-xs font-bold text-emerald-600 hover:underline">Register Now</button>
+                    </div>
+                </form>
+
+                <!-- SIGN UP FORM -->
+                <form id="signup-form" onsubmit="handleAuthRegister(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Full Name</label>
+                        <input type="text" id="reg-name" required placeholder="Geoffrey Njoroge" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Email Address</label>
+                        <input type="email" id="reg-email" required placeholder="writer@example.com" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Phone Number (M-Pesa)</label>
+                        <input type="tel" id="reg-phone" required placeholder="0712345678 or 0112345678" pattern="^(?:254|\+254|0)?(7|1)\d{8}$" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Password</label>
+                        <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 flex items-start space-x-2">
+                        <i class="fa-solid fa-cookie-bite mt-0.5 text-amber-600"></i>
+                        <span>Location cookies will be generated upon registration to authorize workspace access.</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
+                        Create Account & Authorize
+                    </button>
+
+                    <div class="text-center pt-2">
+                        <span class="text-xs text-gray-500">Already have an account? </span>
+                        <button type="button" onclick="toggleAuthMode('login')" class="text-xs font-bold text-emerald-600 hover:underline">Sign In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div id="main-app" class="hidden">
+        <!-- Top Navigation Header -->
+        <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button id="menu-toggle" class="md:hidden text-white hover:text-emerald-200 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 cursor-pointer" onclick="switchTab('dashboard')">
+                        <span class="bg-white text-emerald-700 font-black text-2xl px-2.5 py-0.5 rounded shadow-sm">A</span>
+                        <span class="font-bold text-xl tracking-wide hidden sm:inline">KENYAWRITERS</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Cookie / Location Badge Header -->
+                    <div class="hidden lg:flex items-center space-x-2 bg-emerald-800/80 px-3 py-1 rounded-full text-xs text-emerald-100 border border-emerald-600">
+                        <i class="fa-solid fa-cookie text-amber-400"></i>
+                        <span id="header-location">Locating...</span>
+                    </div>
+
+                    <div class="relative">
+                        <button onclick="switchTab('submissions')" class="p-2 text-emerald-100 hover:text-white relative">
+                            <i class="fa-solid fa-bell text-lg"></i>
+                            <span id="notif-badge" class="absolute top-1 right-1 bg-sky-400 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                    <div onclick="switchTab('profile')" class="flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 cursor-pointer px-3 py-1.5 rounded-full border border-emerald-600 transition">
+                        <div class="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-sm">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <span id="top-user-display" class="text-sm font-medium hidden md:inline">Writer Account</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex max-w-7xl mx-auto min-h-[calc(100vh-4rem)]">
+
+            <!-- Sidebar Navigation -->
+            <aside id="sidebar" class="fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out w-64 bg-white border-r border-gray-200 z-40 flex flex-col justify-between pt-16 md:pt-0">
+                <div class="p-4 space-y-6 overflow-y-auto custom-scrollbar">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3">Main Navigation</div>
+                    <nav class="space-y-1" id="nav-container">
+                        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 text-emerald-700 bg-emerald-50 rounded-lg font-semibold text-left">
+                            <i class="fa-solid fa-house w-5 text-emerald-600"></i>
+                            <span>Dashboard</span>
+                        </button>
+                        <button onclick="switchTab('available')" id="nav-available" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-file-lines w-5 text-gray-400"></i>
+                            <span>Available Tasks</span>
+                        </button>
+                        <button onclick="switchTab('premium')" id="nav-premium" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-shield-halved w-5 text-amber-500"></i>
+                            <span>Premium Tasks</span>
+                        </button>
+                        <button onclick="switchTab('awarded')" id="nav-awarded" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-award w-5 text-gray-400"></i>
+                            <span>Awarded Tasks</span>
+                        </button>
+                        <button onclick="switchTab('submissions')" id="nav-submissions" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-cloud-arrow-up w-5 text-gray-400"></i>
+                            <span>Submission Panel</span>
+                        </button>
+                        <button onclick="switchTab('withdraw')" id="nav-withdraw" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-wallet w-5 text-emerald-600"></i>
+                            <span>Withdraw Money</span>
+                        </button>
+                    </nav>
+
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 pt-4 border-t border-gray-100">Training & Support</div>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('training')" id="nav-training" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-graduation-cap w-5 text-indigo-500"></i>
+                            <span>Apply For Training</span>
+                        </button>
+                        <a href="https://chat.whatsapp.com/" target="_blank" class="flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition">
+                            <i class="fa-brands fa-whatsapp w-5 text-emerald-500"></i>
+                            <span>Join Whatsapp Group</span>
+                        </a>
+                        <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-circle-user w-5 text-gray-400"></i>
+                            <span>Profile</span>
+                        </button>
+                        <button onclick="logout()" class="w-full flex items-center space-x-3 px-3 py-2.5 text-rose-600 hover:bg-rose-50 rounded-lg font-medium transition text-left">
+                            <i class="fa-solid fa-right-from-bracket w-5 text-rose-500"></i>
+                            <span>Sign Out</span>
+                        </button>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Dynamic Main Content Area -->
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+
+                <!-- Global Dashboard Banner -->
+                <div class="bg-gradient-to-r from-slate-700 via-gray-800 to-slate-900 rounded-xl text-white p-6 mb-6 shadow-lg relative overflow-hidden">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Dashboard</h1>
+                            <p class="text-gray-300 font-medium mt-1">KENYAWRITERS WORKSPACE</p>
+                            <div class="mt-4 flex items-center space-x-2 bg-slate-800/80 backdrop-blur inline-flex px-4 py-2 rounded-lg border border-slate-600">
+                                <i class="fa-regular fa-clock text-emerald-400"></i>
+                                <span id="countdown" class="font-mono text-sm sm:text-base font-bold text-emerald-300">0d 23h 59m 59s</span>
+                                <span class="text-xs text-gray-400 ml-1">~ to daily task reshuffle</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/90 p-4 rounded-xl border border-slate-700 text-right min-w-[220px]">
+                            <div class="flex items-center justify-end space-x-1 text-amber-400 mb-2">
+                                <i class="fa-solid fa-chart-column"></i>
+                                <i class="fa-solid fa-chart-column text-xs"></i>
+                                <i class="fa-solid fa-chart-column text-base"></i>
+                            </div>
+                            <div class="text-xs text-gray-300 uppercase font-semibold">Today's Available Tasks</div>
+                            <div class="text-sm text-gray-200 mt-1">Basic Accounts: <span class="font-bold text-white">884</span></div>
+                            <div class="text-sm text-amber-300 font-semibold">Premium Accounts: <span class="font-bold text-amber-200">1190</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: TASK BOARDS -->
+                <div id="view-tasks">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                        <div class="flex space-x-2 w-full sm:w-auto">
+                            <button onclick="filterTasks('all')" id="btn-all" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-700 text-white shadow-sm transition">All Tasks (50)</button>
+                            <button onclick="filterTasks('basic')" id="btn-basic" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition">Basic Pool</button>
+                            <button onclick="filterTasks('premium')" id="btn-premium" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition">Premium Pool</button>
+                        </div>
+                        <div class="text-xs font-semibold text-gray-500">Showing <span id="task-count">50</span> available orders</div>
+                    </div>
+                    <div id="tasks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+
+                <!-- VIEW 2: AWARDED TASKS -->
+                <div id="view-awarded" class="hidden space-y-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Your Active Assigned Tasks</h2>
+                    <div id="awarded-container" class="space-y-4"></div>
+                </div>
+
+                <!-- VIEW 3: SUBMISSION PANEL -->
+                <div id="view-submissions" class="hidden space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">Submit Completed Assignment</h2>
+                        <p class="text-xs text-gray-500 mb-6">Upload completed files for quality control scanning. Reviews take a maximum of 3 hours.</p>
+                        
+                        <form id="submission-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Select Awarded Task</label>
+                                <select id="submit-task-id" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                                    <option value="">-- Choose Assigned Task --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Upload Work File (.docx / .pdf)</label>
+                                <input type="file" required accept=".pdf,.docx,.doc" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Submission Notes (Optional)</label>
+                                <textarea rows="3" placeholder="Add comments, sources used, or formatting notes..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+                                <i class="fa-solid fa-paper-plane mr-2"></i> Submit for Review
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Submission Review Tracker</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-xs font-bold text-gray-500 uppercase border-b">
+                                    <tr>
+                                        <th class="p-3">Task Info</th>
+                                        <th class="p-3">Payout</th>
+                                        <th class="p-3">QC Status</th>
+                                        <th class="p-3">Timer / Review Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="submission-log" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: WITHDRAW MONEY -->
+                <div id="view-withdraw" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-xl border border-gray-200">
+                            <span class="text-xs text-gray-400 font-bold uppercase">Total Money In</span>
+                            <div class="text-2xl font-black text-gray-800 mt-1">KSH <span id="total-money">128,500</span></div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border border-gray-200">
+                            <span class="text-xs text-gray-400 font-bold uppercase">Current Balance</span>
+                            <div class="text-2xl font-black text-emerald-600 mt-1">KSH <span id="current-bal">14,500</span></div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border border-gray-200">
+                            <span class="text-xs text-gray-400 font-bold uppercase">Total Withdrawals</span>
+                            <div class="text-2xl font-black text-gray-800 mt-1">KSH <span id="total-withdraw">114,000</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 max-w-lg">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Request M-Pesa Payout</h3>
+                        <form onsubmit="handleWithdrawal(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">M-Pesa Phone Number</label>
+                                <input type="text" id="withdraw-phone" value="254712345678" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Amount (KSH)</label>
+                                <input type="number" min="1000" max="14500" placeholder="Min 1000" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition">
+                                Initiate M-Pesa Withdrawal
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: TRAINING -->
+                <div id="view-training" class="hidden">
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 max-w-xl">
+                        <div class="flex items-center space-x-2 text-emerald-600 font-bold text-sm mb-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Training Application Status: Active</span>
+                        </div>
+                        <h2 class="text-2xl font-black text-gray-800 mb-2">Special Mentorship Masterclass</h2>
+                        <p class="text-xs text-gray-600 mb-6">Online training via Google Meet for academic formatting standards (APA/MLA), plagiarism protection, and premium account access.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 space-y-2 text-xs">
+                            <div><strong>Next Date:</strong> Saturday (Upcoming) | 8:00 PM - 9:00 PM</div>
+                            <div><strong>Requirements:</strong> Phone/Laptop, Stable Internet, Notepad & Pen</div>
+                            <div class="pt-2"><strong>Training Status:</strong> <span class="text-emerald-600 font-bold">PAID</span></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" readonly value="meet.google.com/fmpd-rzt" class="flex-1 bg-gray-100 border border-gray-300 text-xs rounded-lg p-2.5 font-mono">
+                            <button onclick="navigator.clipboard.writeText('meet.google.com/fmpd-rzt'); alert('Link copied!');" class="bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-lg">COPY LINK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 6: PROFILE & COOKIE TRACKING AUDIT -->
+                <div id="view-profile" class="hidden">
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 max-w-lg space-y-4">
+                        <h2 class="text-xl font-bold text-gray-800">Writer Profile & Device Diagnostics</h2>
+                        <div class="space-y-3 text-sm">
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">FULL NAME</span><span id="prof-name" class="font-bold text-gray-800">GEOFFREY NJOROGE</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">EMAIL ADDRESS</span><span id="prof-email" class="font-bold text-gray-800">writer@example.com</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">REGISTERED PHONE</span><span id="prof-phone" class="font-bold text-gray-800">+254 712 345 678</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">ACCOUNT STATUS</span><span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">PREMIUM ACTIVE</span></div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100">
+                            <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2">Stored Location Cookies</h3>
+                            <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200/60 space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-gray-500">Cookie Name:</span><span class="font-mono font-bold text-amber-900">kw_user_location</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Detected Coordinates:</span><span id="cookie-coords" class="font-mono font-bold text-amber-900">0.0000, 0.0000</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Estimated Region:</span><span id="cookie-region" class="font-bold text-emerald-700">Detecting...</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Last Auth Timestamp:</span><span id="cookie-time" class="font-mono text-gray-600">--</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Application Script Engine -->
+    <script>
+        // State Management
+        let currentUser = null;
+        let currentTab = 'dashboard';
+        let currentFilter = 'all';
+        let tasks = [];
+        const awardedTasks = [];
+        const submissions = [];
+
+        // Cookie Helper Functions
+        function setCookie(name, value, days = 30) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${date.toUTCString()};path=/;SameSite=Lax`;
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i=0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+            }
+            return null;
+        }
+
+        function eraseCookie(name) {
+            document.cookie = name + '=; Max-Age=-99999999; path=/;';
+        }
+
+        // Toggle Auth Modal Mode (Login vs Sign Up)
+        function toggleAuthMode(mode) {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const subtitle = document.getElementById('auth-subtitle');
+
+            if (mode === 'signup') {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                subtitle.innerText = "Create your account to start taking tasks.";
+            } else {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                subtitle.innerText = "Welcome Back! Sign in to access your dashboard.";
+            }
+        }
+
+        // Geolocation Engine
+        function captureLocationAndSetCookie(userData) {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const locationData = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            city: "Nairobi, Kenya (GPS Verified)",
+                            timestamp: new Date().toLocaleString()
+                        };
+                        
+                        setCookie("kw_user_location", locationData);
+                        setCookie("kw_user_session", userData);
+                        applyUserSession(userData, locationData);
+                    },
+                    (error) => {
+                        // Fallback location if permission denied
+                        const locationData = {
+                            lat: -1.286389,
+                            lng: 36.817223,
+                            city: "Nairobi Region (Default IP)",
+                            timestamp: new Date().toLocaleString()
+                        };
+                        setCookie("kw_user_location", locationData);
+                        setCookie("kw_user_session", userData);
+                        applyUserSession(userData, locationData);
+                    }
+                );
+            } else {
+                const locationData = { lat: -1.286389, lng: 36.817223, city: "Kenya (IP Estimate)", timestamp: new Date().toLocaleString() };
+                setCookie("kw_user_location", locationData);
+                setCookie("kw_user_session", userData);
+                applyUserSession(userData, locationData);
+            }
+        }
+
+        // Apply Session UI
+        function applyUserSession(user, loc) {
+            currentUser = user;
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+
+            // Set user displays
+            document.getElementById('top-user-display').innerText = user.name || "Writer Account";
+            document.getElementById('prof-name').innerText = user.name || "Geoffrey Njoroge";
+            document.getElementById('prof-email').innerText = user.email;
+            document.getElementById('prof-phone').innerText = user.phone || "+254 712 345 678";
+            document.getElementById('withdraw-phone').value = user.phone || "0712345678";
+
+            if (loc) {
+                document.getElementById('header-location').innerText = `${loc.city}`;
+                document.getElementById('cookie-coords').innerText = `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+                document.getElementById('cookie-region').innerText = loc.city;
+                document.getElementById('cookie-time').innerText = loc.timestamp;
+            }
+        }
+
+        // Auth Form Handlers
+        function handleAuthLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const userData = { email: email, name: email.split('@')[0], phone: "0712345678" };
+            captureLocationAndSetCookie(userData);
+        }
+
+        function handleAuthRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const userData = { name, email, phone };
+            captureLocationAndSetCookie(userData);
+        }
+
+        function logout() {
+            eraseCookie("kw_user_session");
+            eraseCookie("kw_user_location");
+            location.reload();
+        }
+
+        // --- Core Task Board Engine ---
+        const categories = ["CHILDREN AND FAMILY", "ART & HUMANITIES", "BUSINESS & MANAGEMENT", "NURSING & HEALTHCARE", "COMPUTER SCIENCE", "LAW & ETHICS", "PSYCHOLOGY", "SOCIOLOGY", "ECONOMICS", "ENVIRONMENTAL SCIENCE"];
+        const prompts = [
+            "Critically evaluate the extent to which poverty impacts children's educational development.",
+            "Discuss art as a therapeutic tool for children with neurodivergent disabilities.",
+            "Evaluate the use of ethical standards in modern corporate governance frameworks.",
+            "Analyze patient safety protocols in high-stress clinical environment settings."
+        ];
+
+        function generateDailyTaskPool() {
+            const newTasks = [];
+            const today = new Date();
+            for (let i = 1; i <= 50; i++) {
+                const isPremium = i % 2 === 0;
+                const pages = Math.floor(Math.random() * 5) + 1;
+                let price = pages <= 2 ? (Math.floor(Math.random() * 15) * 100 + 1500) : (pages <= 4 ? (Math.floor(Math.random() * 35) * 100 + 4000) : (isPremium ? (Math.floor(Math.random() * 65) * 100 + 12000) : (Math.floor(Math.random() * 35) * 100 + 8000)));
+                const dayOffset = Math.floor(Math.random() * 2) + 3;
+                const formattedDueDate = new Date(today.getTime() + (dayOffset * 86400000)).toISOString().split('T')[0];
+
+                newTasks.push({
+                    id: Math.floor(Math.random() * 8000) + 1000,
+                    field: categories[i % categories.length],
+                    dueDate: formattedDueDate,
+                    context: `${prompts[i % prompts.length]} Formatted correctly in ${pages} page${pages > 1 ? 's' : ''}.`,
+                    priceKsh: price,
+                    pages: pages,
+                    tier: isPremium ? 'premium' : 'basic'
+                });
+            }
+            return newTasks;
+        }
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            document.getElementById('view-tasks').classList.toggle('hidden', !['dashboard', 'available', 'premium'].includes(tabName));
+            document.getElementById('view-awarded').classList.toggle('hidden', tabName !== 'awarded');
+            document.getElementById('view-submissions').classList.toggle('hidden', tabName !== 'submissions');
+            document.getElementById('view-withdraw').classList.toggle('hidden', tabName !== 'withdraw');
+            document.getElementById('view-training').classList.toggle('hidden', tabName !== 'training');
+            document.getElementById('view-profile').classList.toggle('hidden', tabName !== 'profile');
+
+            if (tabName === 'available') filterTasks('basic');
+            else if (tabName === 'premium') filterTasks('premium');
+            else if (tabName === 'dashboard') filterTasks('all');
+
+            document.querySelectorAll('#nav-container button, #sidebar nav button').forEach(btn => {
+                btn.className = "w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left";
+            });
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) activeNav.className = "w-full flex items-center space-x-3 px-3 py-2.5 text-emerald-700 bg-emerald-50 rounded-lg font-semibold text-left";
+
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            renderAwardedView();
+            renderSubmissionsLog();
+        }
+
+        function renderTasks(filter = 'all') {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            const filteredTasks = tasks.filter(t => filter === 'basic' ? t.tier === 'basic' : (filter === 'premium' ? t.tier === 'premium' : true));
+            document.getElementById('task-count').innerText = filteredTasks.length;
+
+            filteredTasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col justify-between hover:shadow-md transition relative overflow-hidden";
+                card.innerHTML = `
+                    ${task.tier === 'premium' ? '<div class="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-bl">PREMIUM</div>' : ''}
+                    <div>
+                        <div class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1">FIELD: ${task.field}</div>
+                        <div class="text-xs font-semibold text-rose-600 mb-3"><i class="fa-regular fa-calendar-check mr-1"></i>DUE IN: ${task.dueDate}</div>
+                        <div class="text-xs font-semibold text-gray-400 uppercase mb-1">CONTEXT:</div>
+                        <p class="text-xs text-gray-700 font-normal leading-relaxed mb-4 line-clamp-3">${task.context}</p>
+                    </div>
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto">
+                        <div>
+                            <span class="text-xs text-gray-400 block font-medium">${task.pages} Page${task.pages > 1 ? 's' : ''}</span>
+                            <span class="text-lg font-black text-gray-900">KSH ${task.priceKsh.toLocaleString()}</span>
+                        </div>
+                        <button onclick="bidTask(${task.id})" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-lg shadow-sm transition uppercase tracking-wider">BID TASK</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterTasks(type) {
+            currentFilter = type;
+            ['all', 'basic', 'premium'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                if (btn) btn.className = (t === type) ? "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-700 text-white shadow-sm transition" : "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition";
+            });
+            renderTasks(type);
+        }
+
+        function bidTask(taskId) {
+            const index = tasks.findIndex(t => t.id === taskId);
+            if (index !== -1) {
+                const task = tasks.splice(index, 1)[0];
+                awardedTasks.push(task);
+                alert(`Success! Task #${taskId} awarded to your workspace.`);
+                renderTasks(currentFilter);
+                updateDropdownOptions();
+            }
+        }
+
+        function renderAwardedView() {
+            const container = document.getElementById('awarded-container');
+            container.innerHTML = '';
+            if (awardedTasks.length === 0) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-500 text-sm">You currently have no awarded tasks.</div>`;
+                return;
+            }
+            awardedTasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = "bg-white p-5 rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4";
+                item.innerHTML = `
+                    <div>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">AWARDED TASK #${task.id}</span>
+                        <h4 class="font-bold text-gray-800 text-sm mt-1">${task.field} (${task.pages} Pages)</h4>
+                        <p class="text-xs text-gray-500 mt-0.5">${task.context}</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="font-black text-emerald-700">KSH ${task.priceKsh.toLocaleString()}</span>
+                        <button onclick="switchTab('submissions')" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700">Go to Submit</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateDropdownOptions() {
+            const select = document.getElementById('submit-task-id');
+            select.innerHTML = '<option value="">-- Choose Assigned Task --</option>';
+            awardedTasks.forEach(task => {
+                const opt = document.createElement('option');
+                opt.value = task.id;
+                opt.innerText = `Task #${task.id} - ${task.field} (KSH ${task.priceKsh})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const taskId = parseInt(document.getElementById('submit-task-id').value);
+            const taskIndex = awardedTasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return alert("Select a valid task.");
+
+            const task = awardedTasks.splice(taskIndex, 1)[0];
+            submissions.unshift({
+                id: task.id,
+                field: task.field,
+                pages: task.pages,
+                payout: task.priceKsh,
+                submittedAt: new Date().toISOString(),
+                status: 'under_review',
+                reason: "Turnitin Similarity Flagged: 22% detected on reference citations."
+            });
+
+            document.getElementById('submission-form').reset();
+            updateDropdownOptions();
+            renderSubmissionsLog();
+            alert("File submitted for 3-Hour Quality Control scan.");
+        }
+
+        function renderSubmissionsLog() {
+            const tbody = document.getElementById('submission-log');
+            tbody.innerHTML = '';
+            if (submissions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-xs text-gray-400">No work submitted yet.</td></tr>`;
+                return;
+            }
+
+            submissions.forEach(sub => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3"><div class="font-bold text-gray-800">Task #${sub.id} - ${sub.field}</div></td>
+                    <td class="p-3 font-bold text-gray-900">KSH ${sub.payout.toLocaleString()}</td>
+                    <td class="p-3"><span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Under Review</span></td>
+                    <td class="p-3 text-xs text-gray-500">Max 3 Hours Window Active</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleWithdrawal(e) {
+            e.preventDefault();
+            alert("M-Pesa payout request initialized.");
+        }
+
+        function startTimer(durationSeconds) {
+            let timer = durationSeconds;
+            const display = document.getElementById('countdown');
+            setInterval(() => {
+                const hours = Math.floor((timer % (3600 * 24)) / 3600);
+                const minutes = Math.floor((timer % 3600) / 60);
+                const seconds = Math.floor(timer % 60);
+                display.textContent = `0d ${hours < 10 ? '0' + hours : hours}h ${minutes < 10 ? '0' + minutes : minutes}m ${seconds < 10 ? '0' + seconds : seconds}s`;
+                if (--timer < 0) {
+                    timer = 86400;
+                    tasks = generateDailyTaskPool();
+                    renderTasks(currentFilter);
+                }
+            }, 1000);
+        }
+
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        });
+
+        // Auto Load Cookie Session
+        window.onload = () => {
+            tasks = generateDailyTaskPool();
+            renderTasks('all');
+            startTimer(86400);
+
+            const savedUser = getCookie("kw_user_session");
+            const savedLoc = getCookie("kw_user_location");
+
+            if (savedUser) {
+                applyUserSession(savedUser, savedLoc);
+            }
+        };
+    </script>
+</body>
+</html>
