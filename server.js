@@ -1,22 +1,23 @@
-// STK Push Route for M-Pesa (Buy Goods / Till Number)
+// STK Push Route for Till Number 1734136 (Buy Goods)
 app.post('/api/stk-push', async (req, res) => {
-    const { phone, purpose } = req.body; // purpose: 'register' (10 KES) or 'premium' (20 KES)
+    const { phone, purpose } = req.body; // phone: 2547XXXXXXXX, purpose: 'register' or 'premium'
 
-    let amount = 10; // Default registration fee
+    // Dynamic pricing based on user action
+    let amount = 10; // Default registration fee (KSH 10)
     if (purpose === 'premium') {
-        amount = 20; // Premium account upgrade fee
+        amount = 20; // Premium account activation fee (KSH 20)
     }
 
     const consumerKey = process.env.MPESA_CONSUMER_KEY;
     const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
     
-    // Use sandbox shortcode '174379' for testing, replace with '1734136' when live
+    // Use sandbox shortcode '174379' for testing, or your live till '1734136' when ready
     const shortCode = process.env.MPESA_SHORTCODE || "174379"; 
     const passKey = process.env.MPESA_PASSKEY;
     const callbackUrl = "https://kenyawriterz-api.onrender.com/api/stk-callback";
 
     try {
-        // 1. Generate OAuth Access Token
+        // 1. Generate OAuth Access Token from Safaricom Daraja
         const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
         const tokenResponse = await axios.get(
             'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
@@ -24,7 +25,7 @@ app.post('/api/stk-push', async (req, res) => {
         );
         const accessToken = tokenResponse.data.access_token;
 
-        // 2. Generate Timestamp & Password
+        // 2. Generate Timestamp & Security Password
         const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
         const password = Buffer.from(`${shortCode}${passKey}${timestamp}`).toString('base64');
 
@@ -35,7 +36,7 @@ app.post('/api/stk-push', async (req, res) => {
                 BusinessShortCode: shortCode,
                 Password: password,
                 Timestamp: timestamp,
-                TransactionType: "CustomerBuyGoodsOnline", // Mandatory for Till numbers
+                TransactionType: "CustomerBuyGoodsOnline", // Mandatory for Buy Goods Tills
                 Amount: amount,                             // 10 KES or 20 KES
                 PartyA: phone,
                 PartyB: shortCode,                          // Till store number
@@ -47,19 +48,9 @@ app.post('/api/stk-push', async (req, res) => {
             { headers: { Authorization: `Bearer ${accessToken}` } }
         );
 
-        res.json({ success: true, message: `STK push of KSH ${amount} sent.`, data: stkResponse.data });
+        res.json({ success: true, message: `STK push of KSH ${amount} sent successfully.`, data: stkResponse.data });
     } catch (err) {
         console.error("STK Push Error:", err.response?.data || err.message);
         res.status(500).json({ error: err.response?.data || "Failed to initiate STK push" });
     }
-});
-
-// M-Pesa Callback Endpoint
-app.post('/api/stk-callback', (req, res) => {
-    const callbackData = req.body.Body.stkCallback;
-    if (callbackData.ResultCode === 0) {
-        console.log("Payment successful:", callbackData.CallbackMetadata);
-        // TODO: Update user status in database here
-    }
-    res.status(200).json({ status: "Received" });
 });
