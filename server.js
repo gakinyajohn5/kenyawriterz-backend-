@@ -1,22 +1,7 @@
-const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
-require('dotenv').config();
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-// Health Check Route
-app.get('/api/health', (req, res) => {
-    res.json({ status: "Backend API is active and healthy." });
-});
-
-// STK Push Route for Till Number 1734136 (Buy Goods)
+// STK Push Route for M-Pesa (Buy Goods / Till Number)
 app.post('/api/stk-push', async (req, res) => {
-    const { phone, purpose } = req.body; // phone: 2547XXXXXXXX, purpose: 'register' or 'premium'
+    const { phone, purpose } = req.body; // purpose: 'register' (10 KES) or 'premium' (20 KES)
 
-    // Dynamic testing amounts
     let amount = 10; // Default registration fee
     if (purpose === 'premium') {
         amount = 20; // Premium account upgrade fee
@@ -24,12 +9,14 @@ app.post('/api/stk-push', async (req, res) => {
 
     const consumerKey = process.env.MPESA_CONSUMER_KEY;
     const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-    const shortCode = "1734136"; // Your Buy Goods Till Number
+    
+    // Use sandbox shortcode '174379' for testing, replace with '1734136' when live
+    const shortCode = process.env.MPESA_SHORTCODE || "174379"; 
     const passKey = process.env.MPESA_PASSKEY;
     const callbackUrl = "https://kenyawriterz-api.onrender.com/api/stk-callback";
 
     try {
-        // 1. Generate OAuth Access Token from Safaricom Daraja
+        // 1. Generate OAuth Access Token
         const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
         const tokenResponse = await axios.get(
             'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
@@ -37,7 +24,7 @@ app.post('/api/stk-push', async (req, res) => {
         );
         const accessToken = tokenResponse.data.access_token;
 
-        // 2. Generate Timestamp & Security Password
+        // 2. Generate Timestamp & Password
         const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
         const password = Buffer.from(`${shortCode}${passKey}${timestamp}`).toString('base64');
 
@@ -51,16 +38,16 @@ app.post('/api/stk-push', async (req, res) => {
                 TransactionType: "CustomerBuyGoodsOnline", // Mandatory for Till numbers
                 Amount: amount,                             // 10 KES or 20 KES
                 PartyA: phone,
-                PartyB: shortCode,                          // PartyB is your store/till number for Buy Goods
+                PartyB: shortCode,                          // Till store number
                 PhoneNumber: phone,
                 CallBackURL: callbackUrl,
                 AccountReference: "KenyaWriters",
-                TransactionDesc: purpose === 'premium' ? "Premium Activation" : "Account Registration"
+                TransactionDesc: purpose === 'premium' ? "Premium Activation" : "Registration"
             },
             { headers: { Authorization: `Bearer ${accessToken}` } }
         );
 
-        res.json({ success: true, message: `STK push of KSH ${amount} sent successfully.`, data: stkResponse.data });
+        res.json({ success: true, message: `STK push of KSH ${amount} sent.`, data: stkResponse.data });
     } catch (err) {
         console.error("STK Push Error:", err.response?.data || err.message);
         res.status(500).json({ error: err.response?.data || "Failed to initiate STK push" });
@@ -70,16 +57,9 @@ app.post('/api/stk-push', async (req, res) => {
 // M-Pesa Callback Endpoint
 app.post('/api/stk-callback', (req, res) => {
     const callbackData = req.body.Body.stkCallback;
-    
     if (callbackData.ResultCode === 0) {
         console.log("Payment successful:", callbackData.CallbackMetadata);
-        // Payment success logic goes here
-    } else {
-        console.log("Payment failed or cancelled:", callbackData.ResultDesc);
+        // TODO: Update user status in database here
     }
-
     res.status(200).json({ status: "Received" });
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
