@@ -1,62 +1,4 @@
-const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
-require('dotenv').config();
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-// Database Connection
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
-
-const JWT_SECRET = process.env.JWT_SECRET || 'kenyawriters_secret';
-
-// Health Check
-app.get('/api/health', (req, res) => res.json({ status: "Backend API is active." }));
-
-// Authentication
-app.post('/api/auth/register', async (req, res) => {
-    const { fullName, email, phone, password } = req.body;
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        // Note: Ensure your users table exists in Supabase
-        const newUser = await pool.query(
-            `INSERT INTO users (full_name, email, phone, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, full_name, email, phone`,
-            [fullName, email, phone, hashedPassword]
-        );
-        const user = newUser.rows[0];
-        const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, user });
-    } catch (err) {
-        res.status(500).json({ error: "Registration failed or email exists." });
-    }
-});
-
-app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length === 0) return res.status(400).json({ error: 'User not found.' });
-
-        const user = result.rows[0];
-        const validPass = await bcrypt.compare(password, user.password_hash);
-        if (!validPass) return res.status(400).json({ error: 'Invalid password.' });
-
-        const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, user: { name: user.full_name, email: user.email, phone: user.phone } });
-    } catch (err) {
-        res.status(500).json({ error: "Login failed." });
-    }
-});
-
-// M-Pesa STK Push (Buy Goods)
+// M-Pesa STK Push
 app.post('/api/stk-push', async (req, res) => {
     const { phone, purpose } = req.body;
     const amount = purpose === 'premium' ? 20 : 10;
@@ -80,7 +22,8 @@ app.post('/api/stk-push', async (req, res) => {
             BusinessShortCode: shortCode,
             Password: password,
             Timestamp: timestamp,
-            TransactionType: "CustomerBuyGoodsOnline", // Mandatory for Buy Goods Tills
+            // NOTE: Sandbox shortcode 174379 is a Paybill. You must use CustomerPayBillOnline for testing.
+            TransactionType: "CustomerPayBillOnline", 
             Amount: amount,
             PartyA: phone,
             PartyB: shortCode,
@@ -90,14 +33,48 @@ app.post('/api/stk-push', async (req, res) => {
             TransactionDesc: purpose === 'premium' ? "Premium Activation" : "Registration"
         }, { headers: { Authorization: `Bearer ${accessToken}` } });
 
-        res.json({ success: true, message: "Push sent", data: stkReq.data });
+        // IMPORTANT: Save the pending transaction to Supabase so the callback can find it
+        const checkoutRequestId = stkReq.data.CheckoutRequestID;
+        await pool.query(
+            `INSERT INTO transactions (checkout_request_id, phone, amount, purpose, status) VALUES ($1, $2, $3, $4, 'Pending')`,
+            [checkoutRequestId, phone, amount, purpose]
+        );
+
+        res.json({ success: true, message: "Push sent to phone", data: stkReq.data });
     } catch (err) {
+        console.error(err.response ? err.response.data : err.message);
         res.status(500).json({ error: "STK push failed" });
     }
 });
 
 // M-Pesa Callback
-app.post('/api/stk-callback', (req, res) => res.status(200).json({ status: "Received" }));
+app.post('/api/stk-callback', async (req, res) => {
+    // 1. Immediately acknowledge receipt to Safaricom
+    res.status(200).json({ status: "Received" });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Live on port ${PORT}`));
+    // 2. Process the data in the background
+    try {
+        const callbackData = req.body.Body.stkCallback;
+        const checkoutRequestId = callbackData.CheckoutRequestID;
+        const resultCode = callbackData.ResultCode;
+
+        if (resultCode === 0) {
+            // Payment was successful (User entered PIN)
+            const metadata = callbackData.CallbackMetadata.Item;
+            const receiptNumber = metadata.find(item => item.Name === 'MpesaReceiptNumber').Value;
+
+            await pool.query(
+                `UPDATE transactions SET status = 'Completed', mpesa_receipt = $1 WHERE checkout_request_id = $2`,
+                [receiptNumber, checkoutRequestId]
+            );
+        } else {
+            // Payment failed or was cancelled by user
+            await pool.query(
+                `UPDATE transactions SET status = 'Failed', error_message = $1 WHERE checkout_request_id = $2`,
+                [callbackData.ResultDesc, checkoutRequestId]
+            );
+        }
+    } catch (error) {
+        console.error("Error processing callback:", error);
+    }
+});
