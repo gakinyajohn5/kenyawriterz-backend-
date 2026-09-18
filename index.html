@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Page Title shown on the website tab -->
     <title>KenyaWriters - Online Academic & Content Writing</title>
 
-    <!-- WhatsApp / Social Media Card Preview Tags -->
+    <!-- WhatsApp & Social Media Preview Card Tags -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="KenyaWriters">
     <meta property="og:title" content="KenyaWriters - Academic & Content Workspace">
     <meta property="og:description" content="Access daily writing tasks, track submissions in real time, and get instant M-Pesa payouts.">
-    
-    <!-- Big Logo / Image Preview (Must be a full HTTPS link) -->
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-    <meta property="og:image:secure_url" content="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="600">
-    <meta property="og:image:height" content="600">
-    
     <meta property="og:url" content="https://kenyawriterz-official.vercel.app">
 
-    <!-- Tailwind CSS & Icons -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased">
 
@@ -37,7 +34,7 @@
                     <span class="bg-white text-emerald-700 font-black text-2xl px-2.5 py-0.5 rounded shadow-sm">A</span>
                     <span class="font-extrabold text-2xl tracking-wide">KENYAWRITERS</span>
                 </div>
-                <p id="auth-subtitle" class="text-xs text-emerald-100">Welcome Back! Sign in to access your workspace.</p>
+                <p id="auth-subtitle" class="text-xs text-emerald-100">Welcome Back! Sign in to access your dashboard.</p>
             </div>
 
             <div class="p-6">
@@ -52,12 +49,13 @@
                         <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
                     </div>
                     
+                    <!-- Location Cookie Status Indicator -->
                     <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 flex items-start space-x-2">
                         <i class="fa-solid fa-location-dot mt-0.5 text-amber-600"></i>
-                        <span>Signing in authorizes location cookie logging for regional verification.</span>
+                        <span>Signing in will prompt for your device location to store tracking cookies for region monitoring.</span>
                     </div>
 
-                    <button type="submit" id="login-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
                         Sign In To Account
                     </button>
 
@@ -79,7 +77,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Phone Number (M-Pesa)</label>
-                        <input type="tel" id="reg-phone" required placeholder="0712345678" pattern="^(?:254|\+254|0)?(7|1)\d{8}$" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                        <input type="tel" id="reg-phone" required placeholder="0712345678 or 254712345678" pattern="^(?:254|\+254|0)?(7|1)\d{8}$" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Password</label>
@@ -88,10 +86,10 @@
 
                     <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] text-amber-800 flex items-start space-x-2">
                         <i class="fa-solid fa-cookie-bite mt-0.5 text-amber-600"></i>
-                        <span>Location cookies will be generated upon registration to authorize access.</span>
+                        <span>Location cookies will be generated upon registration to authorize workspace access.</span>
                     </div>
 
-                    <button type="submit" id="register-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition uppercase tracking-wider text-xs">
                         Create Account & Authorize
                     </button>
 
@@ -120,6 +118,7 @@
                 </div>
                 
                 <div class="flex items-center space-x-4">
+                    <!-- Cookie / Location Badge Header -->
                     <div class="hidden lg:flex items-center space-x-2 bg-emerald-800/80 px-3 py-1 rounded-full text-xs text-emerald-100 border border-emerald-600">
                         <i class="fa-solid fa-cookie text-amber-400"></i>
                         <span id="header-location">Locating...</span>
@@ -186,7 +185,7 @@
                         </a>
                         <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition text-left">
                             <i class="fa-solid fa-circle-user w-5 text-gray-400"></i>
-                            <span>Profile</span>
+                            <span>Profile & Activation</span>
                         </button>
                         <button onclick="logout()" class="w-full flex items-center space-x-3 px-3 py-2.5 text-rose-600 hover:bg-rose-50 rounded-lg font-medium transition text-left">
                             <i class="fa-solid fa-right-from-bracket w-5 text-rose-500"></i>
@@ -233,7 +232,7 @@
                             <button onclick="filterTasks('basic')" id="btn-basic" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition">Basic Pool</button>
                             <button onclick="filterTasks('premium')" id="btn-premium" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 transition">Premium Pool</button>
                         </div>
-                        <div class="text-xs font-semibold text-gray-500">Showing <span id="task-count">0</span> available orders</div>
+                        <div class="text-xs font-semibold text-gray-500">Showing <span id="task-count">50</span> available orders</div>
                     </div>
                     <div id="tasks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
@@ -263,7 +262,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Submission Notes (Optional)</label>
-                                <textarea id="submit-notes" rows="3" placeholder="Add comments, sources used, or formatting notes..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                                <textarea rows="3" placeholder="Add comments, sources used, or formatting notes..." class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
                                 <i class="fa-solid fa-paper-plane mr-2"></i> Submit for Review
@@ -345,22 +344,38 @@
                     </div>
                 </div>
 
-                <!-- VIEW 6: PROFILE -->
+                <!-- VIEW 6: PROFILE, COOKIE TRACKING & ACCOUNT ACTIVATION -->
                 <div id="view-profile" class="hidden">
                     <div class="bg-white p-6 rounded-xl border border-gray-200 max-w-lg space-y-4">
-                        <h2 class="text-xl font-bold text-gray-800">Writer Profile & Device Diagnostics</h2>
+                        <h2 class="text-xl font-bold text-gray-800">Writer Profile & Activation</h2>
                         <div class="space-y-3 text-sm">
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">FULL NAME</span><span id="prof-name" class="font-bold text-gray-800">--</span></div>
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">EMAIL ADDRESS</span><span id="prof-email" class="font-bold text-gray-800">--</span></div>
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">REGISTERED PHONE</span><span id="prof-phone" class="font-bold text-gray-800">--</span></div>
-                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">ACCOUNT STATUS</span><span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">PREMIUM ACTIVE</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">FULL NAME</span><span id="prof-name" class="font-bold text-gray-800">GEOFFREY NJOROGE</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">EMAIL ADDRESS</span><span id="prof-email" class="font-bold text-gray-800">writer@example.com</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">REGISTERED PHONE</span><span id="prof-phone" class="font-bold text-gray-800">+254 712 345 678</span></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><span class="text-xs text-gray-400 block font-bold">ACCOUNT STATUS</span><span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">BASIC ACCOUNT</span></div>
                         </div>
 
-                        <div class="pt-4 border-t border-gray-100">
+                        <!-- M-PESA PAYMENT TRIGGER BUTTONS -->
+                        <div class="pt-4 border-t border-gray-100 mt-4">
+                            <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2">Account Activation & Upgrades</h3>
+                            <div class="space-y-3">
+                                <button type="button" onclick="payWithMpesa('register')" class="w-full flex justify-between items-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg text-sm transition shadow-sm">
+                                    <span>Pay Registration Fee via M-Pesa</span>
+                                    <span>KSH 10</span>
+                                </button>
+                                <button type="button" onclick="payWithMpesa('premium')" class="w-full flex justify-between items-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg text-sm transition shadow-sm">
+                                    <span>Upgrade to Premium Account</span>
+                                    <span>KSH 20</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- DEVICE DIAGNOSTICS & COOKIES -->
+                        <div class="pt-4 border-t border-gray-100 mt-4">
                             <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2">Stored Location Cookies</h3>
-                            <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200/60 space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-gray-500">Cookie Name:</span><span class="font-mono font-bold text-amber-900">kw_user_location</span></div>
-                                <div class="flex justify-between"><span class="text-gray-500">Detected Coordinates:</span><span id="cookie-coords" class="font-mono font-bold text-amber-900">0.0000, 0.0000</span></div>
+                            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200/60 space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-gray-500">Cookie Name:</span><span class="font-mono font-bold text-slate-700">kw_user_location</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Detected Coordinates:</span><span id="cookie-coords" class="font-mono font-bold text-slate-700">0.0000, 0.0000</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Estimated Region:</span><span id="cookie-region" class="font-bold text-emerald-700">Detecting...</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Last Auth Timestamp:</span><span id="cookie-time" class="font-mono text-gray-600">--</span></div>
                             </div>
@@ -374,15 +389,40 @@
 
     <!-- Application Script Engine -->
     <script>
-        const API_BASE_URL = "https://kenyawriterz-api.onrender.com/api";
-
         // State Management
         let currentUser = null;
         let currentTab = 'dashboard';
         let currentFilter = 'all';
         let tasks = [];
-        let awardedTasks = [];
-        let submissions = [];
+        const awardedTasks = [];
+        const submissions = [];
+
+        // M-PESA STK PUSH TRIGGER ENGINE
+        async function payWithMpesa(purpose) {
+            // Retrieve phone number from session/profile
+            const phone = currentUser ? (currentUser.phone || "254712345678") : "254712345678";
+            const amountLabel = purpose === 'premium' ? "KSH 20 (Premium Activation)" : "KSH 10 (Registration)";
+            
+            try {
+                alert(`Initiating STK Push of ${amountLabel} to ${phone}. Please check your phone for the M-Pesa PIN prompt.`);
+
+                const response = await fetch("https://kenyawriterz-api.onrender.com/api/stk-push", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone, purpose })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    console.log("STK Push Triggered Successfully:", data);
+                } else {
+                    alert(data.error || "Failed to initiate M-Pesa payment.");
+                }
+            } catch (err) {
+                console.error("Payment API error:", err);
+                alert("Could not connect to the payment server. Ensure your backend is live on Render.");
+            }
+        }
 
         // Cookie Helper Functions
         function setCookie(name, value, days = 30) {
@@ -422,6 +462,7 @@
             }
         }
 
+        // Geolocation Engine
         function captureLocationAndSetCookie(userData) {
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
@@ -451,15 +492,16 @@
             }
         }
 
+        // Apply Session UI
         function applyUserSession(user, loc) {
             currentUser = user;
             document.getElementById('auth-modal').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
 
-            document.getElementById('top-user-display').innerText = user.name || user.full_name || "Writer Account";
-            document.getElementById('prof-name').innerText = user.name || user.full_name || "Geoffrey Njoroge";
+            document.getElementById('top-user-display').innerText = user.name || "Writer Account";
+            document.getElementById('prof-name').innerText = user.name || "Geoffrey Njoroge";
             document.getElementById('prof-email').innerText = user.email;
-            document.getElementById('prof-phone').innerText = user.phone || "0712345678";
+            document.getElementById('prof-phone').innerText = user.phone || "+254 712 345 678";
             document.getElementById('withdraw-phone').value = user.phone || "0712345678";
 
             if (loc) {
@@ -468,128 +510,61 @@
                 document.getElementById('cookie-region').innerText = loc.city;
                 document.getElementById('cookie-time').innerText = loc.timestamp;
             }
-
-            fetchTasksFromBackend();
         }
 
-        // Live Backend API Auth Handlers
-        async function handleAuthLogin(e) {
+        // Auth Form Handlers
+        function handleAuthLogin(e) {
             e.preventDefault();
-            const btn = document.getElementById('login-btn');
-            btn.innerText = "Signing in...";
-            
             const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem("token", data.token);
-                    captureLocationAndSetCookie(data.user);
-                } else {
-                    alert(data.error || "Login failed");
-                }
-            } catch (err) {
-                alert("Could not connect to live backend API.");
-            } finally {
-                btn.innerText = "SIGN IN TO ACCOUNT";
-            }
+            const userData = { email: email, name: email.split('@')[0], phone: "254712345678" };
+            captureLocationAndSetCookie(userData);
         }
 
-        async function handleAuthRegister(e) {
+        function handleAuthRegister(e) {
             e.preventDefault();
-            const btn = document.getElementById('register-btn');
-            btn.innerText = "Creating account...";
-
-            const fullName = document.getElementById('reg-name').value;
+            const name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             const phone = document.getElementById('reg-phone').value;
-            const password = document.getElementById('reg-password').value;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fullName, email, phone, password })
-                });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem("token", data.token);
-                    captureLocationAndSetCookie(data.user);
-                } else {
-                    alert(data.error || "Registration failed");
-                }
-            } catch (err) {
-                alert("Could not connect to live backend API.");
-            } finally {
-                btn.innerText = "CREATE ACCOUNT & AUTHORIZE";
-            }
+            const userData = { name, email, phone };
+            captureLocationAndSetCookie(userData);
         }
 
         function logout() {
             eraseCookie("kw_user_session");
             eraseCookie("kw_user_location");
-            localStorage.removeItem("token");
             location.reload();
         }
 
-        // Fetch Tasks from Render API
-        async function fetchTasksFromBackend() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/tasks`);
-                const data = await response.json();
-                if (response.ok && data.length > 0) {
-                    tasks = data.map(t => ({
-                        id: t.id,
-                        field: t.field,
-                        dueDate: t.due_date ? t.due_date.split('T')[0] : '2026-09-22',
-                        context: t.context,
-                        priceKsh: t.price_ksh,
-                        pages: t.pages,
-                        tier: t.tier
-                    }));
-                } else {
-                    // Fallback to pre-generated pool if database is unseeded
-                    tasks = generateLocalTaskPool();
-                }
-                renderTasks(currentFilter);
-            } catch (err) {
-                tasks = generateLocalTaskPool();
-                renderTasks(currentFilter);
-            }
-        }
+        // Task Generator Engine
+        const categories = ["CHILDREN AND FAMILY", "ART & HUMANITIES", "BUSINESS & MANAGEMENT", "NURSING & HEALTHCARE", "COMPUTER SCIENCE", "LAW & ETHICS", "PSYCHOLOGY", "SOCIOLOGY", "ECONOMICS", "ENVIRONMENTAL SCIENCE"];
+        const prompts = [
+            "Critically evaluate the extent to which poverty impacts children's educational development.",
+            "Discuss art as a therapeutic tool for children with neurodivergent disabilities.",
+            "Evaluate the use of ethical standards in modern corporate governance frameworks.",
+            "Analyze patient safety protocols in high-stress clinical environment settings."
+        ];
 
-        // Generate Local Tasks if DB is unseeded
-        function generateLocalTaskPool() {
-            const categories = ["CHILDREN AND FAMILY", "ART & HUMANITIES", "BUSINESS & MANAGEMENT", "NURSING & HEALTHCARE", "COMPUTER SCIENCE", "LAW & ETHICS"];
-            const prompts = [
-                "Critically evaluate the extent to which poverty impacts children's educational development.",
-                "Discuss art as a therapeutic tool for children with neurodivergent disabilities.",
-                "Evaluate the use of ethical standards in modern corporate governance frameworks."
-            ];
-            const local = [];
-            for(let i=1; i<=50; i++) {
+        function generateDailyTaskPool() {
+            const newTasks = [];
+            const today = new Date();
+            for (let i = 1; i <= 50; i++) {
                 const isPremium = i % 2 === 0;
                 const pages = Math.floor(Math.random() * 5) + 1;
-                const price = pages <= 2 ? (Math.floor(Math.random() * 15) * 100 + 1500) : (isPremium ? (Math.floor(Math.random() * 65) * 100 + 12000) : (Math.floor(Math.random() * 35) * 100 + 4000));
-                local.push({
-                    id: 1000 + i,
+                let price = pages <= 2 ? (Math.floor(Math.random() * 15) * 100 + 1500) : (pages <= 4 ? (Math.floor(Math.random() * 35) * 100 + 4000) : (isPremium ? (Math.floor(Math.random() * 65) * 100 + 12000) : (Math.floor(Math.random() * 35) * 100 + 8000)));
+                const dayOffset = Math.floor(Math.random() * 2) + 3;
+                const formattedDueDate = new Date(today.getTime() + (dayOffset * 86400000)).toISOString().split('T')[0];
+
+                newTasks.push({
+                    id: Math.floor(Math.random() * 8000) + 1000,
                     field: categories[i % categories.length],
-                    dueDate: "2026-09-22",
-                    context: `${prompts[i % prompts.length]} Formatted in ${pages} page${pages > 1 ? 's' : ''}.`,
+                    dueDate: formattedDueDate,
+                    context: `${prompts[i % prompts.length]} Formatted correctly in ${pages} page${pages > 1 ? 's' : ''}.`,
                     priceKsh: price,
                     pages: pages,
                     tier: isPremium ? 'premium' : 'basic'
                 });
             }
-            return local;
+            return newTasks;
         }
 
         function switchTab(tabName) {
@@ -715,13 +690,13 @@
                 payout: task.priceKsh,
                 submittedAt: new Date().toISOString(),
                 status: 'under_review',
-                reason: "Plagiarism Alert: Turnitin similarity index reached 24%."
+                reason: "Turnitin Similarity Flagged: 22% detected on reference citations."
             });
 
             document.getElementById('submission-form').reset();
             updateDropdownOptions();
             renderSubmissionsLog();
-            alert("File submitted for 3-Hour Quality Control review.");
+            alert("File submitted for 3-Hour Quality Control scan.");
         }
 
         function renderSubmissionsLog() {
@@ -738,7 +713,7 @@
                     <td class="p-3"><div class="font-bold text-gray-800">Task #${sub.id} - ${sub.field}</div></td>
                     <td class="p-3 font-bold text-gray-900">KSH ${sub.payout.toLocaleString()}</td>
                     <td class="p-3"><span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Under Review</span></td>
-                    <td class="p-3 text-xs text-gray-500">Max 3 Hours Review Window Active</td>
+                    <td class="p-3 text-xs text-gray-500">Max 3 Hours Window Active</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -759,7 +734,8 @@
                 display.textContent = `0d ${hours < 10 ? '0' + hours : hours}h ${minutes < 10 ? '0' + minutes : minutes}m ${seconds < 10 ? '0' + seconds : seconds}s`;
                 if (--timer < 0) {
                     timer = 86400;
-                    fetchTasksFromBackend();
+                    tasks = generateDailyTaskPool();
+                    renderTasks(currentFilter);
                 }
             }, 1000);
         }
@@ -768,68 +744,19 @@
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
         });
 
+        // Auto Load Cookie Session
         window.onload = () => {
+            tasks = generateDailyTaskPool();
+            renderTasks('all');
+            startTimer(86400);
+
             const savedUser = getCookie("kw_user_session");
             const savedLoc = getCookie("kw_user_location");
 
             if (savedUser) {
                 applyUserSession(savedUser, savedLoc);
             }
-            startTimer(86400);
         };
-        async function payWithMpesa(phone, purpose) {
-    // phone format example: '254712345678'
-    // purpose: 'register' (triggers KSH 10) or 'premium' (triggers KSH 20)
-    try {
-        const response = await fetch("https://kenyawriterz-api.onrender.com/api/stk-push", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, purpose })
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-            alert("STK Push sent! Please check your phone for the M-Pesa prompt and enter your PIN.");
-        } else {
-            alert("Payment request failed. Please check your phone number.");
-        }
-    } catch (err) {
-        console.error("Error:", err);
-        alert("Could not connect to payment server.");
-    }
-}
-        async function payWithMpesa(purpose) {
-    // Get the phone number from the registration or profile input field
-    const phoneInput = document.getElementById('reg-phone') || document.getElementById('withdraw-phone');
-    const phone = phoneInput ? phoneInput.value.trim() : "";
-
-    if (!phone) {
-        alert("Please enter a valid M-Pesa phone number first (e.g., 254712345678).");
-        return;
-    }
-
-    const amountLabel = purpose === 'premium' ? "KSH 20 (Premium Activation)" : "KSH 10 (Registration)";
-    
-    try {
-        alert(`Initiating STK Push of ${amountLabel} to ${phone}. Please check your phone for the M-Pesa PIN prompt.`);
-
-        const response = await fetch("https://kenyawriterz-api.onrender.com/api/stk-push", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, purpose })
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-            console.log("STK Push Response:", data);
-        } else {
-            alert(data.error || "Failed to initiate M-Pesa payment.");
-        }
-    } catch (err) {
-        console.error("Payment error:", err);
-        alert("Could not connect to the payment server.");
-    }
-}
     </script>
 </body>
 </html>
