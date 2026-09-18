@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const pool = require('./db');
 require('dotenv').config();
 
+// 1. Initialize Express App FIRST (This fixes the 'app is not defined' error)
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -82,8 +83,8 @@ app.post('/api/stk-push', async (req, res) => {
     const consumerKey = process.env.MPESA_CONSUMER_KEY;
     const consumerSecret = process.env.MPESA_CONSUMER_SECRET;
     
-    // Use sandbox shortcode '174379' for sandbox testing, or '1734136' when live production credentials are active
-    const shortCode = process.env.MPESA_SHORTCODE || "174379"; 
+    // Use your specific Buy Goods Till Number 1734136 (or fallback to test shortcode if sandbox requires it)
+    const shortCode = process.env.MPESA_SHORTCODE || "1734136"; 
     const passKey = process.env.MPESA_PASSKEY;
     const callbackUrl = "https://kenyawriterz-api.onrender.com/api/stk-callback";
 
@@ -110,7 +111,7 @@ app.post('/api/stk-push', async (req, res) => {
                 TransactionType: "CustomerBuyGoodsOnline", // Mandatory for Buy Goods Tills
                 Amount: amount,                             // 10 KES or 20 KES
                 PartyA: phone,
-                PartyB: shortCode,                          // Store / Till number
+                PartyB: shortCode,                          // Till store number
                 PhoneNumber: phone,
                 CallBackURL: callbackUrl,
                 AccountReference: "KenyaWriters",
@@ -132,7 +133,7 @@ app.post('/api/stk-callback', (req, res) => {
     
     if (callbackData.ResultCode === 0) {
         console.log("Payment successful:", callbackData.CallbackMetadata);
-        // TODO: Update user to verified/premium status in Supabase database here
+        // TODO: Update user to verified/premium status in database here
     } else {
         console.log("Payment failed or cancelled:", callbackData.ResultDesc);
     }
