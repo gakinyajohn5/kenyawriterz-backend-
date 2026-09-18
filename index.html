@@ -3,16 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Writer Access Portal</title>
-    <!-- Tailwind CSS CDN -->
+
+    <!-- Page Title shown on the website tab -->
+    <title>KenyaWriters - Online Academic & Content Writing</title>
+
+    <!-- WhatsApp / Social Media Card Preview Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KenyaWriters">
+    <meta property="og:title" content="KenyaWriters - Academic & Content Workspace">
+    <meta property="og:description" content="Access daily writing tasks, track submissions in real time, and get instant M-Pesa payouts.">
+    
+    <!-- Big Logo / Image Preview (Must be a full HTTPS link) -->
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <meta property="og:image:secure_url" content="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="600">
+    
+    <meta property="og:url" content="https://kenyawriterz-official.vercel.app">
+
+    <!-- Tailwind CSS & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-    </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased">
 
@@ -765,6 +777,59 @@
             }
             startTimer(86400);
         };
+        async function payWithMpesa(phone, purpose) {
+    // phone format example: '254712345678'
+    // purpose: 'register' (triggers KSH 10) or 'premium' (triggers KSH 20)
+    try {
+        const response = await fetch("https://kenyawriterz-api.onrender.com/api/stk-push", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, purpose })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert("STK Push sent! Please check your phone for the M-Pesa prompt and enter your PIN.");
+        } else {
+            alert("Payment request failed. Please check your phone number.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        alert("Could not connect to payment server.");
+    }
+}
+        async function payWithMpesa(purpose) {
+    // Get the phone number from the registration or profile input field
+    const phoneInput = document.getElementById('reg-phone') || document.getElementById('withdraw-phone');
+    const phone = phoneInput ? phoneInput.value.trim() : "";
+
+    if (!phone) {
+        alert("Please enter a valid M-Pesa phone number first (e.g., 254712345678).");
+        return;
+    }
+
+    const amountLabel = purpose === 'premium' ? "KSH 20 (Premium Activation)" : "KSH 10 (Registration)";
+    
+    try {
+        alert(`Initiating STK Push of ${amountLabel} to ${phone}. Please check your phone for the M-Pesa PIN prompt.`);
+
+        const response = await fetch("https://kenyawriterz-api.onrender.com/api/stk-push", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, purpose })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            console.log("STK Push Response:", data);
+        } else {
+            alert(data.error || "Failed to initiate M-Pesa payment.");
+        }
+    } catch (err) {
+        console.error("Payment error:", err);
+        alert("Could not connect to the payment server.");
+    }
+}
     </script>
 </body>
 </html>
